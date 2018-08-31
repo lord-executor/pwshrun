@@ -5,10 +5,12 @@ $locations = @{
 }
 
 function CmdGo {
-    param(
+    Param(
         [string] $location
     )
 
     # Set-Location $locations[$location]
     Write-Host "changing to $($locations[$location])"
 }
+
+PwshRun-RegisterTask "go" "CmdGo"
