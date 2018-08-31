@@ -1,13 +1,16 @@
 
-$settingsPath = "$env:HOME\.pwshrun.json"
+$settingsPath = "~\.pwshrun.json"
+$settings = @{}
 if (!(Test-Path -Path $settingsPath)) {
     Write-Warning "Missing settings file $settingsPath"
+} else {
+    $settings = Get-Content $settingsPath | ConvertFrom-Json -AsHashtable
 }
 
 $pwshrunConf = @{
     "moduleRoot" = $PSScriptRoot;
     "tasks" = @{};
-    "taskSets" = @{};
+    "settings" = $settings;
 }
 
 <#
@@ -41,13 +44,12 @@ function PwshRun-RegisterTask {
  .Synopsis
     Registers settings for a task-set
 #>
-function PwshRun-RegisterSettings {
+function PwshRun-GetSettings {
     Param(
-        [string] $taskSet,
-        [object] $settings
+        [string] $taskSet
     )
 
-    $pwshrunConf.taskSets.add($taskSet, $settings)
+    return $pwshrunConf.settings[$taskSet]
 }
 
 <#

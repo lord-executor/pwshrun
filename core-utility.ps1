@@ -1,17 +1,16 @@
 
-$locations = @{
-    "dev" = "H:\development";
-    "home" = "C:\Users\executor";
-}
+$locations = PwshRun-GetSettings "locations"
 
-function CmdGo {
+function Utility-Go {
     Param(
         [string] $location
     )
 
-    # Set-Location $locations[$location]
-    Write-Host "changing to $($locations[$location])"
+    if ($location -eq "-") {
+        Pop-Location
+    } else {
+        Push-Location $locations[$location]
+    }
 }
 
-PwshRun-RegisterTask "go" "CmdGo"
-PwshRun-RegisterSettings "go" $locations
+PwshRun-RegisterTask "go" "Utility-Go"
