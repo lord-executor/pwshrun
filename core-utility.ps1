@@ -14,3 +14,4 @@ function CmdGo {
 }
 
 PwshRun-RegisterTask "go" "CmdGo"
+PwshRun-RegisterSettings "go" $locations

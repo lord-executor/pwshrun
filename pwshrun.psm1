@@ -1,7 +1,13 @@
-Write-Output "Loading module PwshRun from $PSScriptRoot"
+
+$settingsPath = "$env:HOME\.pwshrun.json"
+if (!(Test-Path -Path $settingsPath)) {
+    Write-Warning "Missing settings file $settingsPath"
+}
 
 $pwshrunConf = @{
+    "moduleRoot" = $PSScriptRoot;
     "tasks" = @{};
+    "taskSets" = @{};
 }
 
 <#
@@ -33,6 +39,19 @@ function PwshRun-RegisterTask {
 
 <#
  .Synopsis
+    Registers settings for a task-set
+#>
+function PwshRun-RegisterSettings {
+    Param(
+        [string] $taskSet,
+        [object] $settings
+    )
+
+    $pwshrunConf.taskSets.add($taskSet, $settings)
+}
+
+<#
+ .Synopsis
     Invokes a PwshRun task with the given argumetns
 #>
 function Invoke-PwshRunTask {
@@ -41,12 +60,17 @@ function Invoke-PwshRunTask {
         [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)] $taskArgs
     )
 
-    Write-Output "Invoke-PwshRunTask"
-
-    PwshRun-DynamicCall $pwshrunConf.tasks[$task] $taskArgs
+    $command = $pwshrunConf.tasks[$task]
+    if ($command) {
+        PwshRun-DynamicCall $pwshrunConf.tasks[$task] $taskArgs
+    } else {
+        Write-Error "Unknown task $task"
+    }
 }
 
-. "$PSScriptRoot/cmd-go.ps1"
+. "$PSScriptRoot/core-tasks.ps1"
+. "$PSScriptRoot/core-management.ps1"
+. "$PSScriptRoot/core-utility.ps1"
 
 Set-Alias prun Invoke-PwshRunTask
 Export-ModuleMember -Function Invoke-PwshRunTask -Alias prun
