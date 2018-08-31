@@ -15,20 +15,6 @@ $pwshrunConf = @{
 
 <#
  .Synopsis
-    Dynamically calls the given command with the given array of arguments (with proper argument escaping)
-#>
-function PwshRun-DynamicCall {
-    Param(
-        [string] $cmd,
-        [object[]] $cmdArgs = @()
-    )
-
-    $mappedArgs = $cmdArgs | %{ "`"$_`""}
-    Invoke-Expression "$cmd $mappedArgs"
-}
-
-<#
- .Synopsis
     Registers a runnable task in the PwshRun taskset
 #>
 function PwshRun-RegisterTask {
@@ -58,15 +44,15 @@ function PwshRun-GetSettings {
 #>
 function Invoke-PwshRunTask {
     Param(
-        [string] $task,
+        [string] $taskName,
         [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)] $taskArgs
     )
 
-    $command = $pwshrunConf.tasks[$task]
-    if ($command) {
-        PwshRun-DynamicCall $pwshrunConf.tasks[$task] $taskArgs
+    $task = $pwshrunConf.tasks[$taskName]
+    if ($task) {
+        Invoke-Expression "$task @taskArgs"
     } else {
-        Write-Error "Unknown task $task"
+        Write-Error "Unknown task $taskName"
     }
 }
 
