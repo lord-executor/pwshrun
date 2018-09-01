@@ -1,6 +1,6 @@
 
 function Task-List {
-    $pwshrunConf.tasks.Keys
+    $config.tasks.Keys
 }
 
 PwshRun-RegisterTask "task:list" "Task-List"
