@@ -6,4 +6,11 @@ function Debug-Args {
     }
 }
 
-PwshRun-RegisterTask "args" "Debug-Args"
+PwshRun-RegisterTasks "debug" @(
+    @{
+        Alias = "args";
+        Command = "Debug-Args";
+        Description = "Lists all the arguments given to the task with type information";
+        Example = "`$RUNNER args [a1] [a2]";
+    }
+)

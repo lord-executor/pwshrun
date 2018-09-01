@@ -33,4 +33,11 @@ function Utility-Go {
     }
 }
 
-PwshRun-RegisterTask "go" "Utility-Go"
+PwshRun-RegisterTasks "navigation" @(
+    @{
+        Alias = "go";
+        Command = "Utility-Go";
+        Description = "Change to the directory identified by the given [location] name";
+        Example = "`$RUNNER go [location]";
+    }
+)
