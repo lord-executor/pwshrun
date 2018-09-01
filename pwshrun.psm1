@@ -2,64 +2,43 @@
 $settingsPath = "~\.pwshrun.json"
 $settings = @{}
 if (!(Test-Path -Path $settingsPath)) {
-    Write-Warning "Missing settings file $settingsPath"
+    Write-Error "Missing settings file $settingsPath"
+    return
 } else {
     $settings = Get-Content $settingsPath | ConvertFrom-Json -AsHashtable
 }
 
-$pwshrunConf = @{
-    "moduleRoot" = $PSScriptRoot;
-    "tasks" = @{};
-    "settings" = $settings;
-}
+$modules = @{}
 
-<#
- .Synopsis
-    Registers a runnable task in the PwshRun taskset
-#>
-function PwshRun-RegisterTask {
-    Param(
-        [string] $alias,
-        [string] $function
-    )
-
-    $pwshrunConf.tasks.add($alias, $function)
-}
-
-<#
- .Synopsis
-    Registers settings for a task-set
-#>
-function PwshRun-GetSettings {
-    Param(
-        [string] $taskSet
-    )
-
-    return $pwshrunConf.settings[$taskSet]
-}
-
-<#
- .Synopsis
-    Invokes a PwshRun task with the given argumetns
-#>
-function Invoke-PwshRunTask {
-    Param(
-        [string] $taskName,
-        [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)] $taskArgs
-    )
-
-    $task = $pwshrunConf.tasks[$taskName]
-    if ($task) {
-        Invoke-Expression "$task @taskArgs"
-    } else {
-        Write-Error "Unknown task $taskName"
+function Create-Modules {
+    $settings.Keys | % {
+        $alias = $_
+        $options = $settings[$alias]
+        $moduleName = "pwshrun-$alias"
+        $module = New-Module -Name $moduleName -ArgumentList @($alias, $options) -ScriptBlock {
+            Param(
+                [string] $alias,
+                $options
+            )
+            Write-Warning "got alias $alias"
+            . "$PSScriptRoot/pwshrun-bootstrap.ps1"
+        }
+        Import-Module -Global -Force $module
+        $modules[$moduleName] = $module
     }
 }
 
-. "$PSScriptRoot/core-tasks.ps1"
-. "$PSScriptRoot/core-management.ps1"
-. "$PSScriptRoot/core-utility.ps1"
+function Uninstall-PwshRunModules {
+    $modules.Keys | % {
+        Remove-Module $_
+    }
+}
 
-Set-Alias prun Invoke-PwshRunTask
-Export-ModuleMember -Function Invoke-PwshRunTask -Alias prun
-Export-ModuleMember -Variable "pwshrunConf"
+function Reset-PwshRunModules {
+    Uninstall-PwshRunModules
+    Create-Modules
+}
+
+Export-ModuleMember -Function Uninstall-PwshRunModules,Reset-PwshRunModules
+
+Create-Modules
