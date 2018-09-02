@@ -146,3 +146,52 @@ Simple task argument debugging tool. It just prints its arguments with some addi
 
 #### Configuration
 None
+
+
+
+# Creating Tasks
+
+## Task 101
+Creating a task is as simple as creating a function and registering it as a task with the task runner.
+
+First: Create a file `task.ps1`
+```
+# define your task
+function Hello {
+    Write-Output "Hello"
+}
+
+# register the task with an alias
+PwshRun-RegisterTasks "navigation" @(
+    @{
+        Alias = "hi";
+        Command = "Hello";
+        Description = "Say hello";
+        Example = "`$RUNNER hi";
+    }
+)
+
+```
+
+Second: Add the file to the runner's load paths
+```json
+{
+    "pr": {
+        "load": [
+            "$PWSHRUN_HOME\\utility",
+            "C:\\path\\to\\task.ps1"
+        ]
+    }
+}
+```
+
+Third: The reload the task runners
+```
+> Reset-PwshRunModules
+```
+
+Fourth: Run the task
+```
+> pr hi
+Hello
+```
