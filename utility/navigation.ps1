@@ -23,13 +23,18 @@ $locations = PwshRun-GetSettings "locations"
 
 function Utility-Go {
     Param(
+        [Parameter(Mandatory=$true)]
         [string] $location
     )
 
     if ($location -eq "-") {
         Pop-Location
     } else {
-        Push-Location $locations[$location]
+        if ($locations[$location]) {
+            Push-Location $locations[$location]
+        } else {
+            Write-Error "Unknown location $location"
+        }
     }
 }
 
