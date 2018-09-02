@@ -92,6 +92,7 @@ Set-Item -Path "function:$invokeName" -Value {
 
     if ($taskArgs.Length -eq 0) {
         Invoke-Expression "$($task.Command)"
+        return
     }
 
     # PowerShell dynamic argument handling is weird ...
