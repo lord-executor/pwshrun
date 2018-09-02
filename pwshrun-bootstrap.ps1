@@ -111,6 +111,9 @@ Set-Item -Path "function:$invokeName" -Value {
 Set-Alias $alias $invokeName
 Export-ModuleMember -Function $invokeName -Alias $alias
 
+<#
+ Load runner scripts / tasks
+#>
 $options.load | ForEach-Object {
     $path = PwshRun-ExpandVariables $_ $config.vars
 
