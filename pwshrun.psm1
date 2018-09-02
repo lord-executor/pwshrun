@@ -21,7 +21,7 @@ function Load-Settings {
 function Create-Modules {
     $settings = Load-Settings
 
-    $settings.Keys | Foreach-Object {
+    $settings.Keys | ForEach-Object {
         $alias = $_
         $options = $settings[$alias]
         $moduleName = "pwshrun-$alias"
@@ -61,7 +61,7 @@ function New-PwshRunner {
 }
 
 function Uninstall-PwshRunModules {
-    $modules.Keys | Foreach-Object {
+    $modules.Keys | ForEach-Object {
         Remove-Module $_
     }
 }

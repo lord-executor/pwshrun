@@ -1,9 +1,9 @@
 
 function Task-List {
-    $config.bundles.Keys | Sort-Object | Foreach-Object {
+    $config.bundles.Keys | Sort-Object | ForEach-Object {
         $bundleName = "[$_]".PadRight(15)
         
-        $config.bundles[$_] | Sort-Object -Property Alias | Foreach-Object {
+        $config.bundles[$_] | Sort-Object -Property Alias | ForEach-Object {
             $task = $_
             $bundle = 
             $description = PwshRun-ExpandVariables $task.Description $config.vars

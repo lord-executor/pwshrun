@@ -38,7 +38,7 @@ function PwshRun-RegisterTasks {
         $config.bundles[$bundle] = $tasks
     }
 
-    $tasks | Foreach-Object {
+    $tasks | ForEach-Object {
         $config.tasks[$_.Alias] = $_;
     }
 }
@@ -65,7 +65,7 @@ function PwshRun-ExpandVariables {
         $vars
     )
 
-    $vars.GetEnumerator() | Foreach-Object {
+    $vars.GetEnumerator() | ForEach-Object {
         New-Variable -Name $_.Key -Value $_.Value
     }
 
@@ -80,14 +80,29 @@ $invokeName = "Invoke-PwshRunTaskOf$((Get-Culture).TextInfo.ToTitleCase($alias))
 Set-Item -Path "function:$invokeName" -Value {
     Param(
         [string] $taskName,
+        [switch] $splat = $false,
         [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)] $taskArgs
     )
 
     $task = $config.tasks[$taskName]
-    if ($task) {
-        Invoke-Expression "$($task.Command) @taskArgs"
-    } else {
+    if (!$task) {
         Write-Error "Unknown task $taskName"
+        return
+    }
+
+    if ($taskArgs.Length -eq 0) {
+        Invoke-Expression "$($task.Command)"
+    }
+
+    # PowerShell dynamic argument handling is weird ...
+    if ($splat) {
+        $processedArgs = $taskArgs | Select-Object -First 1
+        Invoke-Expression "$($task.Command) @processedArgs"
+    } else {
+        $processedArgs = $taskArgs | ForEach-Object {
+            if ($_ -match "^-\w+$") { $_ } else { "`"$_`"" }
+        }
+        Invoke-Expression "$($task.Command) $processedArgs"
     }
 }
 
@@ -96,11 +111,11 @@ Set-Item -Path "function:$invokeName" -Value {
 Set-Alias $alias $invokeName
 Export-ModuleMember -Function $invokeName -Alias $alias
 
-$options.load | Foreach-Object {
+$options.load | ForEach-Object {
     $path = PwshRun-ExpandVariables $_ $config.vars
 
     if (Test-Path $path -PathType Container) {
-        Get-ChildItem $path -Filter "*.ps1" | Foreach-Object {
+        Get-ChildItem $path -Filter "*.ps1" | ForEach-Object {
             . $_.FullName
         }
     } else {
