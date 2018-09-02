@@ -8,11 +8,29 @@ PwshRun is a very simple task runner / productivity tool for PowerShell Core
 
 
 # Installation
+PwshRun can be found on the PowerShell Gallery under https://www.preview.powershellgallery.com/packages/pwshrun
+
 ```
-> Install-Module PwshRun
+> Install-Module -Scope CurrentUser PwshRun
 ```
 
-Or you can download and install it by hand - http://www.powertheshell.com/installpsmodule/
+Since PowerShell module autoloading is ... a bit weird at best (see https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_modules?view=powershell-6)
+we also have to make sure that the module is loaded.
+
+Locate your PowerShell profile script (see https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_profiles?view=powershell-6) and add the following line at the end:
+
+```
+Import-Module pwshrun
+```
+
+Now whenever you open a new PowerShell session, the PwshRun module (and all of its runner modules) should be automatically loaded. You can check that with
+```
+> Get-Module
+ModuleType Version    Name      ExportedCommands
+---------- -------    ----      ----------------
+...
+Script     1.0.0      pwshrun   {New-PwshRunner, Reset-PwshRunModules, Uninstall-PwshRunModules}
+```
 
 
 
@@ -128,3 +146,52 @@ Simple task argument debugging tool. It just prints its arguments with some addi
 
 #### Configuration
 None
+
+
+
+# Creating Tasks
+
+## Task 101
+Creating a task is as simple as creating a function and registering it as a task with the task runner.
+
+First: Create a file `task.ps1`
+```
+# define your task
+function Hello {
+    Write-Output "Hello"
+}
+
+# register the task with an alias
+PwshRun-RegisterTasks "navigation" @(
+    @{
+        Alias = "hi";
+        Command = "Hello";
+        Description = "Say hello";
+        Example = "`$RUNNER hi";
+    }
+)
+
+```
+
+Second: Add the file to the runner's load paths
+```json
+{
+    "pr": {
+        "load": [
+            "$PWSHRUN_HOME\\utility",
+            "C:\\path\\to\\task.ps1"
+        ]
+    }
+}
+```
+
+Third: The reload the task runners
+```
+> Reset-PwshRunModules
+```
+
+Fourth: Run the task
+```
+> pr hi
+Hello
+```

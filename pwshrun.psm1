@@ -8,6 +8,10 @@ if (!(Test-Path $settingsPath)) {
     @{} | ConvertTo-Json | Set-Content $settingsPath
 }
 
+<#
+ .Synopsis
+    Loads the PwshRun settings file that contains all the runner definitions
+#>
 function Load-Settings {
     $settings = @{}
     if (!(Test-Path -Path $settingsPath)) {
@@ -18,10 +22,15 @@ function Load-Settings {
     return $settings
 }
 
+<#
+ .Synopsis
+    Creates dynamic runner modules - one module for each runner - with the pwshrun-bootstrap.ps1 script
+    loading the runner tasks.
+#>
 function Create-Modules {
     $settings = Load-Settings
 
-    $settings.Keys | Foreach-Object {
+    $settings.Keys | ForEach-Object {
         $alias = $_
         $options = $settings[$alias]
         $moduleName = "pwshrun-$alias"
@@ -38,6 +47,10 @@ function Create-Modules {
     }
 }
 
+<#
+ .Synopsis
+    Creates a new PwshRun runner with the given name by adding a new runner definition to the settings file.
+#>
 function New-PwshRunner {
     Param(
         [string] $alias
@@ -60,12 +73,20 @@ function New-PwshRunner {
     Reset-PwshRunModules
 }
 
+<#
+ .Synopsis
+    Removes all runner modules from the current session.
+#>
 function Uninstall-PwshRunModules {
-    $modules.Keys | Foreach-Object {
+    $modules.Keys | ForEach-Object {
         Remove-Module $_
     }
 }
 
+<#
+ .Synopsis
+    Reloads all runner modules, refreshing the settings for each.
+#>
 function Reset-PwshRunModules {
     Uninstall-PwshRunModules
     Create-Modules
