@@ -2,7 +2,8 @@
 function Debug-Args {
     for ($i = 0; $i -lt $args.Length; $i++) {
         $v = $args[$i]
-        Write-Output "[$i]: $v ($($v.GetType().FullName))"
+        Write-Output "[$i]: ($($v.GetType().FullName))"
+        $v
     }
 }
 
