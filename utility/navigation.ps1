@@ -31,7 +31,7 @@ function Utility-Go {
         Pop-Location
     } else {
         if ($locations[$location]) {
-            Push-Location $locations[$location]
+            Push-Location (PwshRun-ExpandVariables $locations[$location])
         } else {
             Write-Error "Unknown location $location"
         }
