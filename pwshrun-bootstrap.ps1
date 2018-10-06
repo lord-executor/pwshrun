@@ -4,7 +4,11 @@
     - $options : the options for the task runner
 #>
 
-$settingsPath = "~\.pwshrun.$alias.json"
+if ($options.ContainsKey("settings")) {
+    $settingsPath = $options.settings
+} else {
+    $settingsPath = "~\.pwshrun.$alias.json"
+}
 $settings = @{}
 if (!(Test-Path -Path $settingsPath)) {
     Write-Warning "Missing settings file $settingsPath"

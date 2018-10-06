@@ -81,7 +81,9 @@ The main configuration file is `~/.pwshrun.json` and it defines the runners and 
     "pr": {
         "load": [
             "$PWSHRUN_HOME\\utility"
-        ]
+        ],
+        // optional - defaults to ~/.pwshrun.[runnerName].json
+        "settings": "~\\my.json",
     }
 }
 ```
@@ -92,7 +94,7 @@ Load paths can either be a **directory** in which case all `*.ps1` files contain
 
 
 ## Runner Configuration
-For each runner, you can (and should) create its own task configuration file. Many tasks will have some configuration options that can be used to customize the task behavior - this should be part of the task / bundle documentation. The runner configuration file has to be created manually with the path `~/.[runnerName].json` where "[runnerName]" is the alias of the runner you are configuring (e.g. `~/.pr.json`).
+For each runner, you can (and should) create its own task configuration file. Many tasks will have some configuration options that can be used to customize the task behavior - this should be part of the task / bundle documentation. The runner configuration file has to be created manually with the path `~/.pwshrun.[runnerName].json` where "[runnerName]" is the alias of the runner you are configuring (e.g. `~/.pwshrun.pr.json`).
 
 ```json
 {
