@@ -4,7 +4,11 @@
     - $options : the options for the task runner
 #>
 
-$settingsPath = "~\.pwshrun.$alias.json"
+if ($options.ContainsKey("settings")) {
+    $settingsPath = $options.settings
+} else {
+    $settingsPath = "~\.pwshrun.$alias.json"
+}
 $settings = @{}
 if (!(Test-Path -Path $settingsPath)) {
     Write-Warning "Missing settings file $settingsPath"
@@ -62,7 +66,7 @@ function PwshRun-GetSettings {
 function PwshRun-ExpandVariables {
     Param(
         [string] $str,
-        $vars
+        $vars = @{}
     )
 
     $vars.GetEnumerator() | ForEach-Object {
@@ -98,12 +102,31 @@ Set-Item -Path "function:$invokeName" -Value {
     # PowerShell dynamic argument handling is weird ...
     if ($splat) {
         $processedArgs = $taskArgs | Select-Object -First 1
-        Invoke-Expression "$($task.Command) @processedArgs"
+        & $task.Command @processedArgs
     } else {
-        $processedArgs = $taskArgs | ForEach-Object {
-            if ($_ -match "^-\w+$") { $_ } else { "`"$_`"" }
+        $namedArgs = @{}
+        $positionalArgs = New-Object System.Collections.ArrayList
+        $name = $null
+        # building named and positional arguments by "guessing"
+        $taskArgs | ForEach-Object {
+            if ($_ -is [string] -and $_ -match "^-\w+$") {
+                $name = $_.Substring(1)
+            } elseif ($_ -is [string] -and $_ -match "^\+\w+$") {
+                $namedArgs.Add($_.Substring(1), $true)
+            } else {
+                # allow _escaping_ of arguments that would normally be interpreted as the name for a
+                # named argument ("-Foo") => "`-Foo" will be converted to "-Foo" as an argument _value_
+                $value = if ($_ -match "^``[-+]") { $_.Substring(1) } else { $_ }
+
+                if ($name -eq $null) {
+                    $positionalArgs.Add($value) > $null
+                } else {
+                    $namedArgs.Add($name, $value)
+                    $name = $null
+                }
+            }
         }
-        Invoke-Expression "$($task.Command) $processedArgs"
+        & $task.Command @namedArgs @positionalArgs
     }
 }
 
