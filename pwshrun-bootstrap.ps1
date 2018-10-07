@@ -111,10 +111,12 @@ Set-Item -Path "function:$invokeName" -Value {
         $taskArgs | ForEach-Object {
             if ($_ -is [string] -and $_ -match "^-\w+$") {
                 $name = $_.Substring(1)
+            } elseif ($_ -is [string] -and $_ -match "^\+\w+$") {
+                $namedArgs.Add($_.Substring(1), $true)
             } else {
                 # allow _escaping_ of arguments that would normally be interpreted as the name for a
                 # named argument ("-Foo") => "`-Foo" will be converted to "-Foo" as an argument _value_
-                $value = if ($_ -match "^``-") { $_.Substring(1) } else { $_ }
+                $value = if ($_ -match "^``[-+]") { $_.Substring(1) } else { $_ }
 
                 if ($name -eq $null) {
                     $positionalArgs.Add($value) > $null

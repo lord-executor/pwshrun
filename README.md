@@ -156,7 +156,8 @@ Argument handling in PowerShell is ... a bit weird at best. In particular when i
 
 1. Arguments that start with a "-" and only contain word characters (regex: "^-\w+$") are **always** treated as argument names for the purpose of binding to cmdlet parameters, so they will never arrive as argument **values**.
 2. To work around this, if you have an argument value that happens to be something like "-Foo", you will have to escape it with the backtick (in the example that would become "``-Foo"). It _has_ to be double-escaped because the backtick is the PowerShell general purpose escape character.
-3. If you need more control over the argument handling, you can call any task with the `-Splat` argument and the first task argument being either a hashmap or an array of arguments. An example like `pr -Splat args @{foo="bar"}` would try to bind the value "bar" to parameter "foo" of the cmdlet.
+3. For switch-type (boolean) parameters, you can either explicitly pass a value like `-Foo $true` or use the alternative `+Foo` notation that sets the switch to true.
+4. If you need more control over the argument handling, you can call any task with the `-Splat` argument and the first task argument being either a hashmap or an array of arguments. An example like `pr -Splat args @{foo="bar"}` would try to bind the value "bar" to parameter "foo" of the cmdlet.
 
 
 # Creating Tasks
