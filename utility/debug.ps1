@@ -26,6 +26,6 @@ PwshRun-RegisterTasks "debug" @(
         Alias = "expand";
         Command = "Expand-Vars";
         Description = "Lists all the arguments given to the task with type information";
-        Example = "`$RUNNER expand `"some $x of string with $variables`" @{'x' = 'form', 'variables' = 'variables'}";
+        Example = "`$RUNNER expand 'some ```$x of string with ```$variables' @{'x' = 'type';'variables' = 'VARS'}";
     }
 )
