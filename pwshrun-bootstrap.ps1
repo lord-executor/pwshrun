@@ -66,7 +66,7 @@ function PwshRun-GetSettings {
 function PwshRun-ExpandVariables {
     Param(
         [string] $str,
-        $vars = @{}
+        $vars = $config.vars
     )
 
     $vars.GetEnumerator() | ForEach-Object {
@@ -74,6 +74,15 @@ function PwshRun-ExpandVariables {
     }
 
     return $ExecutionContext.InvokeCommand.ExpandString($str)
+}
+
+function PwshRun-RegisterPromptHook {
+    Param(
+        [string] $name,
+        [ScriptBlock] $block
+    )
+
+    $global:PwshRunPrompt.hooks[$name] = $block
 }
 
 <#
