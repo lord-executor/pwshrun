@@ -132,4 +132,8 @@ function Reset-PwshRunModules {
 
 Export-ModuleMember -Function Uninstall-PwshRunModules,Reset-PwshRunModules,New-PwshRunner
 
+$ExecutionContext.SessionState.Module.OnRemove += {
+    Uninstall-PwshRunModules
+}
+
 Create-Modules

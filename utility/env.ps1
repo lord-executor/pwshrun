@@ -95,6 +95,10 @@ function Env-Reload {
 }
 
 PwshRun-RegisterPromptHook "env" { Env-LocateConfig }
+$ExecutionContext.SessionState.Module.OnRemove += {
+    PwshRun-RemovePromptHook "env"
+    Env-Reset
+}
 
 PwshRun-RegisterTasks "env" @(
     @{

@@ -85,6 +85,14 @@ function PwshRun-RegisterPromptHook {
     $global:PwshRunPrompt.hooks[$name] = $block
 }
 
+function PwshRun-RemovePromptHook {
+    Param(
+        [string] $name
+    )
+
+    $global:PwshRunPrompt.hooks.Remove($name)
+}
+
 <#
  .Synopsis
     Invokes a PwshRun task with the given arguments
