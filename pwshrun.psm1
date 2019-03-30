@@ -8,6 +8,41 @@ if (!(Test-Path $settingsPath)) {
     @{} | ConvertTo-Json | Set-Content $settingsPath
 }
 
+function PrePromptWithHooks {
+    $global:PwshRunPrompt.hooks.Values | ForEach-Object { & $_ }
+}
+
+function PromptWithHooks {
+    PrePromptWithHooks
+    & $global:PwshRunPrompt.oldPrompt
+}
+
+function Create-PromptHooks {
+    $promptConfig = Get-Variable -Name "PwshRunPrompt" -Scope Global -ValueOnly -ErrorAction SilentlyContinue
+    if (!$promptConfig) {
+        $promptConfig = @{
+            "hooks" = @{}
+        }
+        Set-Variable -Name "PwshRunPrompt" -Value $promptConfig -Scope Global
+        if (Test-Path "variable:PrePrompt") {
+            # Cmder sets up its own prompt with a "PrePrompt" script block that we can use
+            $global:PrePrompt = { PrePromptWithHooks }
+        } else {
+            $promptConfig.oldPrompt = (Get-Item -Path "function:prompt").ScriptBlock
+            Set-Item -Path "function:prompt" -Value PromptWithHooks
+        }
+    }
+}
+
+function Reset-PromptHooks {
+    if ($global:PwshRunPrompt) {
+        if ($global:PwshRunPrompt.oldPrompt) {
+            Set-Item -Path "function:prompt" -Value $global:PwshRunPrompt.oldPrompt
+        }
+        Remove-Variable -Name "PwshRunPrompt" -Scope Global
+    }
+}
+
 <#
  .Synopsis
     Loads the PwshRun settings file that contains all the runner definitions
@@ -28,6 +63,7 @@ function Load-Settings {
     loading the runner tasks.
 #>
 function Create-Modules {
+    Create-PromptHooks
     $settings = Load-Settings
 
     $settings.Keys | ForEach-Object {
@@ -81,6 +117,8 @@ function Uninstall-PwshRunModules {
     $modules.Keys | ForEach-Object {
         Remove-Module $_
     }
+    $modules = @{}
+    Reset-PromptHooks
 }
 
 <#
