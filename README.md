@@ -150,6 +150,43 @@ Simple task argument debugging tool. It just prints its arguments with some addi
 None
 
 
+## Environment
+The `env` bundle provides a convenient mechanism to manage specific environment variables depending on the current working directory. The functionality is similar to that of comparable linux tools and is based on the customization of the PowerShell prompt.
+
+In any given working directory, the bundle will try to navigate from the current directory to every parent until it reaches the file system root or happens to encounter a directory that contains a `.env` file. When a `.env` file is located, it will parse its contents as a **JSON** object and update the environment variables accordingly. When setting environment variables, it will remember the previous state and when the directory is changed such that the same `.env` file is no longer encountered when walking the directory tree, the previous state will be restored.
+
+Sample `.env` file:
+```json
+{
+    "FOO": "BAR",
+    "TEST": "My $env:USERNAME",
+    "OTHER": "Current pwshrun location is: $PWSHRUN_HOME",
+    "COMPUTERNAME": "NO"
+}
+```
+
+Simply place this file in any directory, then navigate to that directory or any of its subdirectories and check your environment variables with:
+```
+$env:OTHER
+```
+
+**Note**: This has only been tested with a default PowerShell Core (6.1) and the same PowerShell used in the context of the [Cmder Console Emulator](https://cmder.net/).
+
+### env:show
+The `env:show` task simply lists the current customizations of the environment variables and exits.
+
+### env:reload
+Reloads the current environment variables - useful if you are currently editing `.env` files and want to see the results immediately.
+
+### Configuration
+```json
+"environment": {
+    "logUpdate": true
+}
+```
+
+If `logUpdate` is enabled, pwshrun will output operations performed on environment variables to the terminal.
+
 
 # Argument Handling
 Argument handling in PowerShell is ... a bit weird at best. In particular when it comes to [splatting](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_splatting?view=powershell-6) with named **and** positional arguments and the [call operator &](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_operators?view=powershell-6). Due to this, slight _tweaks_ had to be made in the way task arguments are handled. In most situations this will not become an issue, but in more complex cases it might, so here are the rules:
