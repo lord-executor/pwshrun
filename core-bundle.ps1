@@ -11,8 +11,8 @@ function Task-List {
         
         $config.bundles[$_] | Sort-Object -Property Alias | ForEach-Object {
             $task = $_
-            $description = PwshRun-ExpandVariables $task.Description $config.vars
-            $example = PwshRun-ExpandVariables $task.Example $config.vars
+            $description = PwshRun-ExpandVariables $task.Description
+            $example = PwshRun-ExpandVariables $task.Example
             Write-Output "$bundleName $($task.Alias) - $description"
             Write-Output "                  > $example"
         }
