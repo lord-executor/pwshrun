@@ -1,11 +1,16 @@
 
 function Task-List {
-    $config.bundles.Keys | Sort-Object | ForEach-Object {
+    Param(
+        [string] $bundle
+    )
+
+    $bundles = if ($bundle) { @($bundle) } else { $config.bundles.Keys }
+
+    $bundles | Sort-Object | ForEach-Object {
         $bundleName = "[$_]".PadRight(15)
         
         $config.bundles[$_] | Sort-Object -Property Alias | ForEach-Object {
             $task = $_
-            $bundle = 
             $description = PwshRun-ExpandVariables $task.Description $config.vars
             $example = PwshRun-ExpandVariables $task.Example $config.vars
             Write-Output "$bundleName $($task.Alias) - $description"
