@@ -30,6 +30,12 @@ function PwshRun-LoadSettings {
         $config.vars = PwshRun-MergeHashtables $config.vars $data._vars
         $data.Remove("_vars")
     }
+    if ($data._include) {
+        foreach ($file in $data._include) {
+            $combined = PwshRun-MergeHashtables $combined $(PwshRun-LoadSettings $file)
+        }
+        $data.Remove("_include")
+    }
 
     $combined = PwshRun-MergeHashtables $combined $data
 
