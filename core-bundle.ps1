@@ -18,6 +18,14 @@ function Task-Metadata {
     $config.tasks
 }
 
+function Task-ShowVars {
+    $config.vars
+}
+
+function Task-ShowSettings {
+    $config.settings
+}
+
 PwshRun-RegisterTasks "core" @(
     @{
         Alias = "task:list";
@@ -30,5 +38,17 @@ PwshRun-RegisterTasks "core" @(
         Command = "Task-Metadata";
         Description = "Get metadata of all available tasks";
         Example = "`$RUNNER task:metadata";
+    },
+    @{
+        Alias = "task:vars";
+        Command = "Task-ShowVars";
+        Description = "Show all task variables";
+        Example = "`$RUNNER task:vars";
+    },
+    @{
+        Alias = "task:settings";
+        Command = "Task-ShowSettings";
+        Description = "Show all task settings";
+        Example = "`$RUNNER task:settings";
     }
 )
