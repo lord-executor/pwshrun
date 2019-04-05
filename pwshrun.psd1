@@ -9,7 +9,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = '.\pwshrun.psm1'
+RootModule = ''
 
 # Version number of this module.
 ModuleVersion = '1.2.0'
@@ -66,14 +66,17 @@ Description = 'PwshRun is a very simple task runner / productivity tool for Powe
 # FormatsToProcess = @()
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-# NestedModules = @()
+NestedModules = @(
+    ".\pwshrun.psm1",
+    ".\bin\netstandard2.0\PwshRunCmdlets.dll"
+)
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Reset-PwshRunModules', 'New-PwshRunner', 'Create-Modules', 
                'Load-Settings', 'Uninstall-PwshRunModules'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = @()
+CmdletsToExport = @('Read-CredentialsStore')
 
 # Variables to export from this module
 # VariablesToExport = @()
