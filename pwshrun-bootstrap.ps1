@@ -25,7 +25,7 @@ function PwshRun-LoadSettings {
     )
 
     $combined = @{}
-    $data = Get-Content $settingsPath | ConvertFrom-Json -AsHashtable
+    $data = Get-Content $(PwshRun-ExpandVariables $settingsPath) | ConvertFrom-Json -AsHashtable
     if ($data._vars) {
         $config.vars = PwshRun-MergeHashtables $config.vars $data._vars
         $data.Remove("_vars")
