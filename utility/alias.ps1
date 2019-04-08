@@ -31,7 +31,7 @@ $tasks.GetEnumerator() | Foreach-Object {
         Alias = $_.Key;
         Command = [scriptblock]::Create("Alias-RunCommands $($_.Key)");
         Description = "";
-        Example = "`$RUNNER $_";
+        Example = "`$RUNNER $($_.Key)";
     }
 }
 
