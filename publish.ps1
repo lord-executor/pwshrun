@@ -16,5 +16,4 @@ Remove-Item -Recurse "$modulePath\pwshrun"
 New-Item -ItemType Directory "$modulePath\pwshrun"
 Copy-Item -Recurse -Exclude $exclude -Path "$PSScriptRoot\*" -Destination "$modulePath\pwshrun"
 
-
-#Publish-Module -Name "PwshRun" -NuGetApiKey $apiKey
+Publish-Module -Name "PwshRun" -NuGetApiKey $apiKey

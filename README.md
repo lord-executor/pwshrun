@@ -106,6 +106,17 @@ For each runner, you can (and should) create its own task configuration file. Ma
 }
 ```
 
+### Include Files
+It is possible to further split the runner configuration into separate chunks by using the `_include` key in the runner configuration. Files referenced in the `_include` array are loaded and their configuration is merged into the main configuration - this pattern can be applied recursively.
+
+```json
+{
+    "_include": [
+        "$HOME/secondary.json"
+    ],
+}
+```
+
 # Built-In Bundles
 
 ## Core
@@ -186,6 +197,27 @@ Reloads the current environment variables - useful if you are currently editing 
 ```
 
 If `logUpdate` is enabled, pwshrun will output operations performed on environment variables to the terminal.
+
+
+## Aliases
+With the `alias` bundle, the runner configuration can be extended with user defined tasks that run one or more commands and are made available as regular runner tasks.
+
+```json
+"alias": {
+    "glog": {
+      "cmd": ["git log --graph --all --decorate"]
+    },
+    "test": {
+      "cmd": [
+        "pr task:list alias",
+        "pr task:settings"
+      ]
+    }
+  }
+```
+
+### alias:list
+Lists all registered aliases.
 
 
 # Argument Handling
@@ -271,3 +303,6 @@ PwshRun-ExpandVariables 'Hello $env:USERNAME'
 PwshRun-ExpandVariables 'Hello $env:USERNAME, you are looking $look' @{look = "amazing"}
   Hello MyUsername, you are looking amazing
 ```
+
+### Read-CredentialsStore [-Type ] Target
+This method allows access to the Windows Credential Manager (credui.dll) to retrieve stored credentials. The `Type` parameter can be one of the values `Generic` (default), `DomainPassword` or `DomainCertificate` and the `Target` parameter is the name / identifier of the credential that should be retreived. The CmdLet returns a `PSCredential` object that can directly be used to execute remote commands. For most other scenarios it can be converted to a network credential object with the `GetNetworkCredential` method from which the password can be retreived in plain text for use in scripts.
