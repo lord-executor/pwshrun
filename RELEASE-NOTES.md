@@ -1,3 +1,8 @@
+# 1.3.0 (2019-04-08)
+* Alias bundle for user defined tasks in runner configuration
+* Custom CmdLet assembly for retreiving credentials from Windows Credentials Manager (credui.dll)
+  * Exported `Read-CredentialsStore` CmdLet
+
 # 1.2.0 (2019-04-02)
 * Added prompt-hook capabilities
 * New per-directory subtree environment variables customization

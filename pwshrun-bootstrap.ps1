@@ -9,13 +9,6 @@ if ($options.ContainsKey("settings")) {
 } else {
     $settingsPath = "~\.pwshrun.$alias.json"
 }
-$settings = @{}
-if (!(Test-Path -Path $settingsPath)) {
-    Write-Warning "Missing settings file $settingsPath"
-} else {
-    $settings = Get-Content $settingsPath | ConvertFrom-Json -AsHashtable
-}
-
 $config = @{
     "vars" = @{
         "PWSHRUN_HOME" = $PSScriptRoot;
@@ -23,7 +16,30 @@ $config = @{
     };
     "bundles" = @{};
     "tasks" = @{};
-    "settings" = $settings;
+    "settings" = @{};
+}
+
+function PwshRun-LoadSettings {
+    Param(
+        [string] $settingsPath
+    )
+
+    $combined = @{}
+    $data = Get-Content $(PwshRun-ExpandVariables $settingsPath) | ConvertFrom-Json -AsHashtable
+    if ($data._vars) {
+        $config.vars = PwshRun-MergeHashtables $config.vars $data._vars
+        $data.Remove("_vars")
+    }
+    if ($data._include) {
+        foreach ($file in $data._include) {
+            $combined = PwshRun-MergeHashtables $combined $(PwshRun-LoadSettings $file)
+        }
+        $data.Remove("_include")
+    }
+
+    $combined = PwshRun-MergeHashtables $combined $data
+
+    $combined
 }
 
 <#
@@ -61,19 +77,50 @@ function PwshRun-GetSettings {
 
 <#
  .Synopsis
+    Creates local variables from all elements in the given hashtable in the parent
+    (caller) scope.
+#>
+function PwshRun-CreateVariables {
+    Param(
+        [hashtable] $vars
+    )
+
+    $vars.GetEnumerator() | ForEach-Object {
+        New-Variable -Force -Scope 1 -Name $_.Key -Value $_.Value
+    }
+}
+
+<#
+ .Synopsis
     Performs string expansion with a defined set of variables
 #>
 function PwshRun-ExpandVariables {
     Param(
         [string] $str,
-        $vars = $config.vars
+        [hashtable] $vars = $config.vars
     )
 
-    $vars.GetEnumerator() | ForEach-Object {
-        New-Variable -Name $_.Key -Value $_.Value
-    }
+    PwshRun-CreateVariables $vars
 
     return $ExecutionContext.InvokeCommand.ExpandString($str)
+}
+
+function PwshRun-MergeHashtables {
+    $output = @{}
+    # $input is an enumerator, so we have to get the enumerator of $tables in order
+    # to combine the two
+    foreach ($table in ($input + $args.GetEnumerator())) {
+        if ($table -is [hashtable]) {
+            foreach ($key in $table.Keys) {
+                if ($table.$key -is [hashtable] -and $output.$key -is [hashtable]) {
+                    $output.$key = PwshRun-MergeHashtables $output.$key $table.$key
+                } else {
+                    $output.$key = $table.$key
+                }
+            }
+        }
+    }
+    $output
 }
 
 function PwshRun-RegisterPromptHook {
@@ -92,6 +139,14 @@ function PwshRun-RemovePromptHook {
 
     $global:PwshRunPrompt.hooks.Remove($name)
 }
+
+if (!(Test-Path -Path $settingsPath)) {
+    Write-Warning "Missing settings file $settingsPath"
+} else {
+    $config.settings = PwshRun-LoadSettings $settingsPath
+}
+
+
 
 <#
  .Synopsis
@@ -112,7 +167,8 @@ Set-Item -Path "function:$invokeName" -Value {
     }
 
     if ($taskArgs.Length -eq 0) {
-        Invoke-Expression "$($task.Command)"
+        # short circuit for 0 arguments case
+        & $task.Command
         return
     }
 
@@ -156,7 +212,7 @@ Export-ModuleMember -Function $invokeName -Alias $alias
  Load runner scripts / tasks
 #>
 $options.load | ForEach-Object {
-    $path = PwshRun-ExpandVariables $_ $config.vars
+    $path = PwshRun-ExpandVariables $_
 
     if (Test-Path $path -PathType Container) {
         Get-ChildItem $path -Filter "*.ps1" | ForEach-Object {

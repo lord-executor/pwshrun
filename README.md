@@ -106,6 +106,17 @@ For each runner, you can (and should) create its own task configuration file. Ma
 }
 ```
 
+### Include Files
+It is possible to further split the runner configuration into separate chunks by using the `_include` key in the runner configuration. Files referenced in the `_include` array are loaded and their configuration is merged into the main configuration - this pattern can be applied recursively.
+
+```json
+{
+    "_include": [
+        "$HOME/secondary.json"
+    ],
+}
+```
+
 # Built-In Bundles
 
 ## Core
@@ -149,6 +160,64 @@ Simple task argument debugging tool. It just prints its arguments with some addi
 #### Configuration
 None
 
+
+## Environment
+The `env` bundle provides a convenient mechanism to manage specific environment variables depending on the current working directory. The functionality is similar to that of comparable linux tools and is based on the customization of the PowerShell prompt.
+
+In any given working directory, the bundle will try to navigate from the current directory to every parent until it reaches the file system root or happens to encounter a directory that contains a `.env` file. When a `.env` file is located, it will parse its contents as a **JSON** object and update the environment variables accordingly. When setting environment variables, it will remember the previous state and when the directory is changed such that the same `.env` file is no longer encountered when walking the directory tree, the previous state will be restored.
+
+Sample `.env` file:
+```json
+{
+    "FOO": "BAR",
+    "TEST": "My $env:USERNAME",
+    "OTHER": "Current pwshrun location is: $PWSHRUN_HOME",
+    "COMPUTERNAME": "NO"
+}
+```
+
+Simply place this file in any directory, then navigate to that directory or any of its subdirectories and check your environment variables with:
+```
+$env:OTHER
+```
+
+**Note**: This has only been tested with a default PowerShell Core (6.1) and the same PowerShell used in the context of the [Cmder Console Emulator](https://cmder.net/).
+
+### env:show
+The `env:show` task simply lists the current customizations of the environment variables and exits.
+
+### env:reload
+Reloads the current environment variables - useful if you are currently editing `.env` files and want to see the results immediately.
+
+### Configuration
+```json
+"environment": {
+    "logUpdate": true
+}
+```
+
+If `logUpdate` is enabled, pwshrun will output operations performed on environment variables to the terminal.
+
+
+## Aliases
+With the `alias` bundle, the runner configuration can be extended with user defined tasks that run one or more commands and are made available as regular runner tasks.
+
+```json
+"alias": {
+    "glog": {
+      "cmd": ["git log --graph --all --decorate"]
+    },
+    "test": {
+      "cmd": [
+        "pr task:list alias",
+        "pr task:settings"
+      ]
+    }
+  }
+```
+
+### alias:list
+Lists all registered aliases.
 
 
 # Argument Handling
@@ -234,3 +303,6 @@ PwshRun-ExpandVariables 'Hello $env:USERNAME'
 PwshRun-ExpandVariables 'Hello $env:USERNAME, you are looking $look' @{look = "amazing"}
   Hello MyUsername, you are looking amazing
 ```
+
+### Read-CredentialsStore [-Type ] Target
+This method allows access to the Windows Credential Manager (credui.dll) to retrieve stored credentials. The `Type` parameter can be one of the values `Generic` (default), `DomainPassword` or `DomainCertificate` and the `Target` parameter is the name / identifier of the credential that should be retreived. The CmdLet returns a `PSCredential` object that can directly be used to execute remote commands. For most other scenarios it can be converted to a network credential object with the `GetNetworkCredential` method from which the password can be retreived in plain text for use in scripts.
