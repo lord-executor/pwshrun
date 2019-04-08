@@ -167,7 +167,8 @@ Set-Item -Path "function:$invokeName" -Value {
     }
 
     if ($taskArgs.Length -eq 0) {
-        Invoke-Expression "$($task.Command)"
+        # short circuit for 0 arguments case
+        & $task.Command
         return
     }
 
