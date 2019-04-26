@@ -26,13 +26,17 @@ PwshRun-RegisterTasks "alias" @(
 )
 
 $pwshrunTasks = @()
-$tasks.GetEnumerator() | Foreach-Object {
-    $pwshrunTasks = $pwshrunTasks + @{
-        Alias = $_.Key;
-        Command = [scriptblock]::Create("Alias-RunCommands $($_.Key)");
-        Description = "";
-        Example = "`$RUNNER $($_.Key)";
-    }
-}
 
-PwshRun-RegisterTasks "alias" $pwshrunTasks
+if ($tasks)
+{
+    $tasks.GetEnumerator() | Foreach-Object {
+        $pwshrunTasks = $pwshrunTasks + @{
+            Alias = $_.Key;
+            Command = [scriptblock]::Create("Alias-RunCommands $($_.Key)");
+            Description = "";
+            Example = "`$RUNNER $($_.Key)";
+        }
+    }
+
+    PwshRun-RegisterTasks "alias" $pwshrunTasks
+}

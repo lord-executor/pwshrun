@@ -1,3 +1,6 @@
+# 1.3.1 (2019-04-26)
+* Bugfix for alias bundle initialization error
+
 # 1.3.0 (2019-04-08)
 * Alias bundle for user defined tasks in runner configuration
 * Custom CmdLet assembly for retreiving credentials from Windows Credentials Manager (credui.dll)
