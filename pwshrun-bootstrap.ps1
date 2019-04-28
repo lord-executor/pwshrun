@@ -4,6 +4,8 @@
     - $options : the options for the task runner
 #>
 
+. "$PSScriptRoot/command.ps1"
+
 if ($options.ContainsKey("settings")) {
     $settingsPath = $options.settings
 } else {
@@ -146,6 +148,15 @@ if (!(Test-Path -Path $settingsPath)) {
     $config.settings = PwshRun-LoadSettings $settingsPath
 }
 
+$invokeInName = "Invoke-PwshRunCommandIn$((Get-Culture).TextInfo.ToTitleCase($alias))"
+Set-Item -Path "function:$invokeInName" -Value {
+    param(
+        [Parameter(Mandatory=$true)]
+        [PSObject] $command
+    )
+
+    Invoke-PwshRunCommandInternal $command
+}
 
 
 <#
@@ -160,15 +171,19 @@ Set-Item -Path "function:$invokeName" -Value {
         [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)] $taskArgs
     )
 
+    $env:PWSHRUN_RUNNER = $alias
+
     $task = $config.tasks[$taskName]
     if (!$task) {
         Write-Error "Unknown task $taskName"
+        $env:PWSHRUN_RUNNER = $null
         return
     }
 
     if ($taskArgs.Length -eq 0) {
         # short circuit for 0 arguments case
         & $task.Command
+        $env:PWSHRUN_RUNNER = $null
         return
     }
 
@@ -201,12 +216,14 @@ Set-Item -Path "function:$invokeName" -Value {
         }
         & $task.Command @namedArgs @positionalArgs
     }
+
+    $env:PWSHRUN_RUNNER = $null
 }
 
 . "$PSScriptRoot/core-bundle.ps1"
 
 Set-Alias $alias $invokeName
-Export-ModuleMember -Function $invokeName -Alias $alias
+Export-ModuleMember -Function $invokeName,$invokeInName -Alias $alias
 
 <#
  Load runner scripts / tasks

@@ -1,4 +1,6 @@
 
+. "$PSScriptRoot/command.ps1"
+
 $modules = @{}
 $settingsPath = "~\.pwshrun.json"
 
@@ -130,7 +132,20 @@ function Reset-PwshRunModules {
     Create-Modules
 }
 
-Export-ModuleMember -Function Uninstall-PwshRunModules,Reset-PwshRunModules,New-PwshRunner
+function Invoke-PwshRunCommand {
+    param(
+        [Parameter(Mandatory=$true)]
+        [PSObject] $command
+    )
+
+    if ($command.Runner) {
+        & "Invoke-PwshRunCommandIn$((Get-Culture).TextInfo.ToTitleCase($command.Runner))" $command
+    } else {
+        Invoke-PwshRunCommandInternal $command
+    }
+}
+
+Export-ModuleMember -Function Uninstall-PwshRunModules,Reset-PwshRunModules,New-PwshRunner,New-PwshRunCommand,Invoke-PwshRunCommand,Push-PwshRunCommand,Pop-PwshRunCommand
 
 $ExecutionContext.SessionState.Module.OnRemove += {
     Uninstall-PwshRunModules

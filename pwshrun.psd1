@@ -73,7 +73,7 @@ NestedModules = @(
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Reset-PwshRunModules', 'New-PwshRunner', 'Create-Modules', 
-               'Load-Settings', 'Uninstall-PwshRunModules'
+               'Load-Settings', 'Uninstall-PwshRunModules', 'New-PwshRunCommand', 'Invoke-PwshRunCommand', 'Push-PwshRunCommand', 'Pop-PwshRunCommand'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @('Read-CredentialsStore')
