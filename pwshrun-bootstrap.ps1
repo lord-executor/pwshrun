@@ -191,6 +191,10 @@ Set-Item -Path "function:$invokeName" -Value {
     if ($splat) {
         $processedArgs = $taskArgs | Select-Object -First 1
         & $task.Command @processedArgs
+    } elseif ($task.ArgMode -eq "Raw") {
+        #$MyInvocation.Line.GetType() | Write-Host
+        $rawArgs = $MyInvocation.Line.Split(" ");
+        & $task.Command $rawArgs[2..$rawArgs.Length]
     } else {
         $namedArgs = @{}
         $positionalArgs = New-Object System.Collections.ArrayList

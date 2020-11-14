@@ -22,6 +22,18 @@ function Git-CheckBranch {
     return $true
 }
 
+function Git-Clean {
+    Param(
+        [string[]] $raw
+    )
+
+    $ignoreFile = $raw[0]
+    $passthrough = $raw[1..$raw.Length]
+    $excludes = $(Get-Content $ignoreFile) -match "^(?!(#|\s*$))" | ForEach-Object { Write-Output "-e",$_ }
+
+    git clean @excludes @passthrough
+}
+
 function Git-FindMerge {
     Param(
         [string] $commit,
