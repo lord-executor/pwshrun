@@ -8,7 +8,7 @@ PwshRun is a very simple task runner / productivity tool for PowerShell Core
 
 
 # Installation
-PwshRun can be found on the PowerShell Gallery under https://www.preview.powershellgallery.com/packages/pwshrun
+PwshRun can be found on the PowerShell Gallery under https://www.powershellgallery.com/packages/pwshrun
 
 ```
 > Install-Module -Scope CurrentUser PwshRun
