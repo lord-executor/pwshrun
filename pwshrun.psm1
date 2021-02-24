@@ -14,12 +14,11 @@ function PrePromptWithHooks {
 
 function PromptWithHooks {
     PrePromptWithHooks
-    & $global:PwshRunPrompt.oldPrompt
+    return & $global:PwshRunPrompt.oldPrompt
 }
 
 function Create-PromptHooks {
-    $promptConfig = Get-Variable -Name "PwshRunPrompt" -Scope Global -ValueOnly -ErrorAction SilentlyContinue
-    if (!$promptConfig) {
+    if (!(Test-Path "variable:PwshRunPrompt")) {
         $promptConfig = @{
             "hooks" = @{}
         }
