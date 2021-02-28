@@ -31,6 +31,21 @@ function Task-ShowSettings {
     $config.settings
 }
 
+function Task-ShowTypes {
+    $config.types
+}
+
+function Task-Log {
+    Param(
+        [LogLevel] $level = [LogLevel]::Information,
+        [string] $message
+    )
+
+    if ([int]$level -ge [int]$config.vars.LOGLEVEL) {
+        Write-Host $message
+    }
+}
+
 PwshRun-RegisterTasks "core" @(
     @{
         Alias = "task:list";
@@ -55,5 +70,11 @@ PwshRun-RegisterTasks "core" @(
         Command = "Task-ShowSettings";
         Description = "Show all task settings";
         Example = "`$RUNNER task:settings";
+    },
+    @{
+        Alias = "task:types";
+        Command = "Task-ShowTypes";
+        Description = "Show all types defined by pwshrun";
+        Example = "`$RUNNER task:types";
     }
 )
