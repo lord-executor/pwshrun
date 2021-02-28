@@ -7,7 +7,9 @@ $modulePath = $env:PSModulePath -split ";" | Select-String -Pattern "Users" | Se
 
 $exclude = @(
     "publish.ps1",
-    "cmdlets"
+    "test.ps1",
+    "cmdlets",
+    "tests"
 )
 Remove-Item -Recurse "$modulePath\pwshrun"
 New-Item -ItemType Directory "$modulePath\pwshrun"

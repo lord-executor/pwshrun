@@ -1,3 +1,7 @@
+Param(
+    [hashtable] $inputSettings = $null
+)
+
 
 . "$PSScriptRoot/command.ps1"
 
@@ -49,6 +53,10 @@ function Reset-PromptHooks {
     Loads the PwshRun settings file that contains all the runner definitions
 #>
 function Load-Settings {
+    if ($null -ne $inputSettings -and $inputSettings.Count -ne 0) {
+        return $inputSettings
+    }
+    
     $settings = @{}
     if (!(Test-Path -Path $settingsPath)) {
         Write-Error "Missing settings file $settingsPath"
@@ -70,6 +78,9 @@ function Create-Modules {
     $settings.Keys | ForEach-Object {
         $alias = $_
         $options = $settings[$alias]
+        if (!$options.ContainsKey("settings")) {
+            $options.settings = "~\.pwshrun.$alias.json"
+        }
         $moduleName = "pwshrun-$alias"
         $module = New-Module -Name $moduleName -ArgumentList @($alias, $options) -ScriptBlock {
             Param(

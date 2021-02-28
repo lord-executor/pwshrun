@@ -18,11 +18,6 @@ enum LogLevel {
     None = 6
 }
 
-if ($options.ContainsKey("settings")) {
-    $settingsPath = $options.settings
-} else {
-    $settingsPath = "~\.pwshrun.$alias.json"
-}
 $config = @{
     "vars" = @{
         "PWSHRUN_HOME" = $PSScriptRoot;
@@ -158,10 +153,14 @@ function PwshRun-RemovePromptHook {
     $global:PwshRunPrompt.hooks.Remove($name)
 }
 
-if (!(Test-Path -Path $settingsPath)) {
-    Write-Warning "Missing settings file $settingsPath"
+if ($options.settings -is [string]) {
+    if (!(Test-Path -Path $options.settings)) {
+        Write-Warning "Missing settings file $($options.settings)"
+    } else {
+        $config.settings = PwshRun-LoadSettings $options.settings
+    }
 } else {
-    $config.settings = PwshRun-LoadSettings $settingsPath
+    $config.settings = $options.settings
 }
 
 $invokeInName = "Invoke-PwshRunCommandIn$((Get-Culture).TextInfo.ToTitleCase($alias))"
