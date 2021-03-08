@@ -6,6 +6,18 @@
 
 . "$PSScriptRoot/command.ps1"
 
+# Analogous to Microsoft.Extensions.Logging.LogLevel
+# Trace = 0, Debug = 1, Information = 2, Warning = 3, Error = 4, Critical = 5, None = 6
+enum LogLevel {
+    Trace = 0
+    Debug = 1
+    Information = 2
+    Warning = 3
+    Error = 4
+    Critical = 5
+    None = 6
+}
+
 if ($options.ContainsKey("settings")) {
     $settingsPath = $options.settings
 } else {
@@ -15,10 +27,14 @@ $config = @{
     "vars" = @{
         "PWSHRUN_HOME" = $PSScriptRoot;
         "RUNNER" = $alias;
+        "LOGLEVEL" = [LogLevel]::Warning;
     };
     "bundles" = @{};
     "tasks" = @{};
     "settings" = @{};
+    "types" = @{
+        "LogLevel" = [LogLevel];
+    };
 }
 
 function PwshRun-LoadSettings {

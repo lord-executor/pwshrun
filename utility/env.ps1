@@ -25,29 +25,19 @@ function Env-LocateConfig {
     Env-Reset
 }
 
-function Env-Log {
-    Param(
-        [string] $message
-    )
-
-    if ($environment.logUpdate) {
-        Write-Host $message
-    }
-}
-
 function Env-Set {
     Param(
         [Parameter(Mandatory=$true)]
         [hashtable] $vars
     )
 
-    Env-Log "Updating environment..."
+    Task-Log -Level Information "Updating environment..."
     $vars.Keys | ForEach-Object {
         if ($null -eq $vars[$_]) {
-            Env-Log "remove $_"
+            Task-Log -Level Debug "remove $_"
             Remove-Item -Path "env:$_"
         } else {
-            Env-Log "$_ => $($vars[$_])"
+            Task-Log -Level Debug "$_ => $($vars[$_])"
             Set-Item -Path "env:$_" -Value $vars[$_]
         }
     }

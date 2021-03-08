@@ -117,6 +117,15 @@ It is possible to further split the runner configuration into separate chunks by
 }
 ```
 
+# Debugging
+To facilitate debugging, pwshrun uses a configurable log level to generate output that could be helpful for diagnostic purposes.
+
+To set the log level to something other than its default `[LogLevel]::Warning`, you can do the following in your current session or add it to your profile.
+
+```
+> $(pr task:vars).LOGLEVEL = $(pr task:types).LogLevel::Debug
+```
+
 # Built-In Bundles
 
 ## Core
@@ -131,6 +140,15 @@ Returns the PwshRun task configuration objects.
 ```
 > (pr task:metadata).GetEnumerator() | % { $_.Value | Format-Table }
 ```
+
+### task:vars
+Returns all the internal pwshrun variables, like the `PWSHRUN_HOME`. The result is a _modifiable_ hash.
+
+### task:settings
+Returns all the internal pwshrun settings. The result is a _modifiable_ hash.
+
+### task:types
+Returns all the internally defined **types** like the `LogLevel` enum.
 
 ## Utility
 
@@ -188,15 +206,6 @@ The `env:show` task simply lists the current customizations of the environment v
 
 ### env:reload
 Reloads the current environment variables - useful if you are currently editing `.env` files and want to see the results immediately.
-
-### Configuration
-```json
-"environment": {
-    "logUpdate": true
-}
-```
-
-If `logUpdate` is enabled, pwshrun will output operations performed on environment variables to the terminal.
 
 
 ## Aliases
