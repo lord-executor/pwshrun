@@ -18,6 +18,7 @@ $config = @{
     "settings" = @{};
     "types" = @{
         "LogLevel" = [LogLevel];
+        "PwshRunCommand" = [PwshRunCommand];
     };
 }
 
@@ -61,7 +62,8 @@ function PwshRun-RegisterTasks {
     }
 
     $tasks | ForEach-Object {
-        $config.tasks[$_.Alias] = $_;
+        $_.Bundle = $bundle
+        $config.tasks[$_.Alias] = $_
     }
 }
 
