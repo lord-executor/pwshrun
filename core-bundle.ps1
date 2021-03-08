@@ -1,47 +1,4 @@
 
-function Task-IsElevated {
-    return (New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
-function Task-RunElevated {
-    param(
-        [scriptblock]$block,
-        [object[]]$blockArguments,
-        [switch]$noExit
-    )
-
-    $command = New-PwshRunCommand $block -Arguments $blockArguments -WorkDir $PWD
-
-    if (Task-IsElevated) {
-        Invoke-PwshRunCommand $command
-    } else {
-        $file = Push-PwshRunCommand $command
-        $cmd = Task-CreateReEntryCommand -CommandFile $file -NoExit:$noExit
-        $cmd.StartProcess($true)
-    }
-}
-
-function Task-CreateReEntryCommand {
-    param(
-        [string]$commandFile,
-        [switch]$noExit
-    )
-
-    $module = (Get-Module pwshrun).Path
-    $arguments = New-Object System.Collections.ArrayList
-
-    if ($noExit) {
-        $arguments.Add("-NoExit") | Out-Null
-    }
-
-    $arguments.Add("-Command") | Out-Null
-    $arguments.Add("""& { Import-Module '$module'; Pop-PwshRunCommand '$commandFile' }""") | Out-Null
-
-    Write-Host $arguments
-
-    return New-PwshRunCommand (Get-Process -Id $pid).Path -Arguments $arguments
-}
-
 function Task-List {
     Param(
         [string] $bundle
@@ -78,15 +35,13 @@ function Task-ShowTypes {
     $config.types
 }
 
-function Task-Log {
+function Task-Eval {
     Param(
-        [LogLevel] $level = [LogLevel]::Information,
-        [string] $message
+        [string] $scriptBlockStr
     )
-
-    if ([int]$level -ge [int]$config.vars.LOGLEVEL) {
-        Write-Host $message
-    }
+    Write-Host $(Task-IsElevated)
+    $block = [scriptblock]::Create($scriptBlockStr)
+    Invoke-Command $block
 }
 
 PwshRun-RegisterTasks "core" @(
@@ -119,5 +74,11 @@ PwshRun-RegisterTasks "core" @(
         Command = "Task-ShowTypes";
         Description = "Show all types defined by pwshrun";
         Example = "`$RUNNER task:types";
+    },
+    @{
+        Alias = "task:eval";
+        Command = "Task-Eval";
+        Description = "Evaluates a script block in the scope of a pwshrun task";
+        Example = "`$RUNNER task:eval { PwshRun-GetSettings `"locations`" }";
     }
 )

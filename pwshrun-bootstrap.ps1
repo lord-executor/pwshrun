@@ -4,25 +4,14 @@
     - $options : the options for the task runner
 #>
 
-. "$PSScriptRoot/command.ps1"
-
-# Analogous to Microsoft.Extensions.Logging.LogLevel
-# Trace = 0, Debug = 1, Information = 2, Warning = 3, Error = 4, Critical = 5, None = 6
-enum LogLevel {
-    Trace = 0
-    Debug = 1
-    Information = 2
-    Warning = 3
-    Error = 4
-    Critical = 5
-    None = 6
-}
+. "$PSScriptRoot/modules/command.ps1"
+. "$PSScriptRoot/modules/command-tools.ps1"
+. "$PSScriptRoot/modules/diagnostics.ps1"
 
 $config = @{
     "vars" = @{
         "PWSHRUN_HOME" = $PSScriptRoot;
         "RUNNER" = $alias;
-        "LOGLEVEL" = [LogLevel]::Warning;
     };
     "bundles" = @{};
     "tasks" = @{};

@@ -3,7 +3,8 @@ Param(
 )
 
 
-. "$PSScriptRoot/command.ps1"
+. "$PSScriptRoot/modules/command.ps1"
+. "$PSScriptRoot/modules/diagnostics.ps1"
 
 $modules = @{}
 $settingsPath = "~\.pwshrun.json"

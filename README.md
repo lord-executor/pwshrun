@@ -123,7 +123,7 @@ To facilitate debugging, pwshrun uses a configurable log level to generate outpu
 To set the log level to something other than its default `[LogLevel]::Warning`, you can do the following in your current session or add it to your profile.
 
 ```
-> $(pr task:vars).LOGLEVEL = $(pr task:types).LogLevel::Debug
+> $env:PWSHRUN_LOGLEVEL = "Debug"
 ```
 
 # Built-In Bundles
