@@ -150,16 +150,18 @@ namespace PwshRunCmdlets.CredentialsStore
         {
             public UInt32 Flags;
             public CredentialType Type;
-            public IntPtr TargetName;
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string TargetName;
             public IntPtr Comment;
             public System.Runtime.InteropServices.ComTypes.FILETIME LastWritten;
             public UInt32 CredentialBlobSize;
             public IntPtr CredentialBlob;
-            public UInt32 Persist;
+            public Persistance Persist;
             public UInt32 AttributeCount;
             public IntPtr Attributes;
             public IntPtr TargetAlias;
-            public IntPtr UserName;
+            [MarshalAs(UnmanagedType.LPWStr)]
+            public string UserName;
 
         }
 

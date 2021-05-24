@@ -25,7 +25,7 @@ namespace PwshRunCmdlets.CredentialsStore
                 CredUI.NativeCredential cred = (CredUI.NativeCredential)Marshal.PtrToStructure(handle, typeof(CredUI.NativeCredential));
 
                 var password = new SecureString();
-                var username = Marshal.PtrToStringUni(cred.UserName);
+                var username = cred.UserName;
 
                 if (cred.CredentialBlobSize > 2)
                 {
