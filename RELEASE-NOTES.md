@@ -1,3 +1,8 @@
+# 1.3.2 (2021-05-24)
+* New cmdlets to interact with the credentails store `Write-CredentialsStore` and `Remove-CredentialsStore`
+* Improved logging
+* Improved prompt initialization and self-check command
+
 # 1.3.1 (2019-04-26)
 * Bugfix for alias bundle initialization error
 

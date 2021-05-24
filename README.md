@@ -313,5 +313,31 @@ PwshRun-ExpandVariables 'Hello $env:USERNAME, you are looking $look' @{look = "a
   Hello MyUsername, you are looking amazing
 ```
 
-### Read-CredentialsStore [-Type ] Target
-This method allows access to the Windows Credential Manager (credui.dll) to retrieve stored credentials. The `Type` parameter can be one of the values `Generic` (default), `DomainPassword` or `DomainCertificate` and the `Target` parameter is the name / identifier of the credential that should be retreived. The CmdLet returns a `PSCredential` object that can directly be used to execute remote commands. For most other scenarios it can be converted to a network credential object with the `GetNetworkCredential` method from which the password can be retreived in plain text for use in scripts.
+## Credential Manager (credui.dll) Integration
+PwshRun comes with some useful CmdLets to access the Windows Credential Manager (credui.dll) to retrieve stored credentials, store new credentials and delete credentials.
+
+### Read-CredentialsStore [-Type CredentialType] Target
+The `Type` parameter can be one of the values `Generic` (default), `DomainPassword` or `DomainCertificate` and the `Target` parameter is the name / identifier of the credential that should be retreived. The CmdLet returns a `PSCredential` object that can directly be used to execute remote commands. For most other scenarios it can be converted to a network credential object with the `GetNetworkCredential` method from which the password can be retreived in plain text for use in scripts. If the target credentail cannot be found, the CmdLet returns `$null`.
+
+```
+(Read-CredentialsStore "MyCredentials").GetNetworkCredential().Password
+```
+
+### Write-CredentialsStore [-Type CredentialType] Target Credential
+The `Type` and `Target` work analogous to the `Read-CredentialsStore` CmdLet and it simply takes an additional `Credentail` argument of type `PSCredential`.
+
+To create a credential purely programmatically, you can do something like
+```
+$password = ConvertTo-SecureString 'MySecretPassword' -AsPlainText -Force
+$creds = New-Object System.Management.Automation.PSCredential ('MyUserName', $password)
+Write-CredentialsStore -Target "MyCredentials" -Credential $creds
+```
+
+If you want to ask the user for the credentials to store, then use the following
+```
+$creds = Get-Credential -UserName $(whoami)
+Write-CredentialsStore -Target "MyCredentials" -Credential $creds
+```
+
+### Remove-CredentialsStore [-Type CredentialType] Target
+Unsurprisingly, this CmdLet also takes the same basic arguments as the previous two and tries to remove the target credentials. If the target exists, then it will return the target name whereas it will return `$null` if the credentials do not exist.
